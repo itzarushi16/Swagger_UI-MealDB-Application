@@ -1,0 +1,5 @@
+package com.example.meal.model;
+
+public class Meal {
+
+}

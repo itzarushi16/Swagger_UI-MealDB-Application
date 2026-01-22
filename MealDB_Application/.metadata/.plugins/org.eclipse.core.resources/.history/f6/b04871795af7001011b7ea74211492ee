@@ -1,0 +1,51 @@
+package com.example.meal.service;
+
+import com.example.meal.model.Meal;
+import com.example.meal.model.MealResponse;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.lang.reflect.Field;
+import java.util.Comparator;
+
+@Service
+public class MealService {
+
+    private static final String API_URL =
+            "https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata";
+
+    public Meal getMealWithLeastIngredients() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        MealResponse response =
+                restTemplate.getForObject(API_URL, MealResponse.class);
+
+        if (response == null || response.getMeals() == null) {
+            return null;
+        }
+
+        return response.getMeals()
+                .stream()
+                .min(Comparator.comparingInt(this::countIngredients))
+                .orElse(null);
+    }
+
+    private int countIngredients(Meal meal) {
+        int count = 0;
+
+        for (Field field : meal.getClass().getDeclaredFields()) {
+            if (field.getName().startsWith("strIngredient")) {
+                try {
+                    field.setAccessible(true);
+                    Object value = field.get(meal);
+                    if (value != null && !value.toString().trim().isEmpty()) {
+                        count++;
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return count;
+    }
+}

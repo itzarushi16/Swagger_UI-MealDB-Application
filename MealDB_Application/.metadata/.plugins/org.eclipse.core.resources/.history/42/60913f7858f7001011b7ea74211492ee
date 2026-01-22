@@ -1,0 +1,23 @@
+package com.example.meal.controller;
+
+
+
+import com.example.mealdb.model.Meal;
+import com.example.mealdb.service.MealService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/meals")
+public class MealController {
+
+    private final MealService mealService;
+
+    public MealController(MealService mealService) {
+        this.mealService = mealService;
+    }
+
+    @GetMapping("/least-ingredients")
+    public Meal getMealWithLeastIngredients() {
+        return mealService.getMealWithLeastIngredients();
+    }
+}
